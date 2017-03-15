@@ -9,8 +9,8 @@ python3
 python3-lxml
 
 Workflow:
-1. Download videos and meeting transcripts and save into <DATA-FOLDER>:
-retrieve/retrieve_sessions.py <DATA-FOLDER>
+1. Download videos and meeting transcripts and save into DATA-FOLDER:
+retrieve/retrieve_sessions.py DATA-FOLDER
 
 Four different files will be saved for each session:
 *.mp4 - video of the session
@@ -20,10 +20,10 @@ Four different files will be saved for each session:
 
 2. Produce first-pass recognition output with an ASR system. 
 Store recognition output in the following format:
-<start-time-in-seconds> <end-time-in-seconds> word
+start-time-in-seconds end-time-in-seconds word
 
 3. Align the first-pass output with the meeting transcript using sclite:
-align/asr_align_2_elan.py <asr-output> <transcript-file> <metadata-filename> <elan-filename>
+align/asr_align_2_elan.py asr-output transcript-file metadata-filename elan-filename
 
 The output is in the Elan EAF-format.
 
@@ -31,6 +31,6 @@ Test the alignment script with example files:
 align/asr_align_2_elan.py test/session_79_2008.asr test/session_79_2008.transcript test/session_79_2008.metadata test/session_79_2008.eaf
 
 4. Optionally you can extract individual speech segments from a list of EAF-files:
-extract/elan_wav_extractor.py <eaf-list> <wav-segment-dir>
+extract/elan_wav_extractor.py eaf-list wav-segment-dir
 
 André Mansikkaniemi, andre.mansikkaniemi@aalto.fi
