@@ -18,7 +18,7 @@ Four different files will be saved for each session:
 *.transcript - meeting transcript with speaker information for each paragraph
 *.metadata - metadata file containing date information and links to the original video and meeting transcript
 
-2. Produce first-pass recognition output with an ASR system. 
+2. Produce first-pass recognition output with an ASR system (preferably train a biased LM with the meeting transcripts).
 Store recognition output in the following format:
 start-time-in-seconds end-time-in-seconds word
 
