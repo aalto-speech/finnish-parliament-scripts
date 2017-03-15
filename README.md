@@ -33,4 +33,6 @@ align/asr_align_2_elan.py test/session_79_2008.asr test/session_79_2008.transcri
 4. Optionally you can extract individual speech segments from a list of EAF-files:
 extract/elan_wav_extractor.py eaf-list wav-segment-dir
 
+Stores both audio file (.wav) and transcript (.trn)
+
 André Mansikkaniemi, andre.mansikkaniemi@aalto.fi
