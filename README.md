@@ -2,11 +2,11 @@
 Scripts for retrieving and aligning speech and meeting transcripts from the web portal of the Parliament of Finland (https://www.eduskunta.fi)
 
 Dependencies:
-sox
-avconv
-sclite
-python3
-python3-lxml
+- sox
+- avconv
+- sclite
+- python3
+- python3-lxml
 
 Workflow:
 1. Download videos and meeting transcripts and save into DATA-FOLDER:
