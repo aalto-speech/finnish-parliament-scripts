@@ -12,7 +12,7 @@ def replace_chars(match):
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
 
-# remove annoying characters
+# remove strange characters
 chars = {
     '\xc2\x82' : ',',        # High code comma
     '\xc2\x84' : ',,',       # High code double comma

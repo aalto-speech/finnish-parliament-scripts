@@ -8,6 +8,9 @@ Dependencies:
 - python3
 - python3-lxml
 
+
+ASR system is also required to produce first-pass hypotheses
+
 Download videos and meeting transcripts and save into DATA-FOLDER:
 -------------------------
 ```bash
