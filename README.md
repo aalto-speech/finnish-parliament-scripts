@@ -50,7 +50,7 @@ extract/elan_wav_extractor.py eaf-list wav-segment-dir
 Stores both audio file (.wav) and transcript (.trn)
 
 
-Extract individual speech segments from a metadata files:
+Extract individual speech segments from a list of metadata files:
 -------------------------
 ```bash
 extract/corpus_extractor.py metadata-file-list 
