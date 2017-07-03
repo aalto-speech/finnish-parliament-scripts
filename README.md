@@ -41,10 +41,19 @@ Test the alignment script with example files:
 align/asr_align_2_elan.py test/session_79_2008.asr test/session_79_2008.transcript test/session_79_2008.metadata test/session_79_2008.eaf
 ```
 
-Optionally you can extract individual speech segments from a list of EAF-files:
+Extract individual speech segments from a list of EAF-files:
 -------------------------
 ```bash
 extract/elan_wav_extractor.py eaf-list wav-segment-dir
+```
+
+Stores both audio file (.wav) and transcript (.trn)
+
+
+Extract individual speech segments from a metadata files:
+-------------------------
+```bash
+extract/corpus_extractor.py metadata-file-list 
 ```
 
 Stores both audio file (.wav) and transcript (.trn)
