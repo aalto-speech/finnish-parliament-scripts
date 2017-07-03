@@ -7,7 +7,7 @@ Dependencies:
 - sclite
 - python3
 - python3-lxml
-
+- wget
 
 ASR system is also required to produce first-pass hypotheses
 
