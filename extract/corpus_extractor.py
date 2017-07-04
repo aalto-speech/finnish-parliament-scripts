@@ -52,4 +52,4 @@ for line in links:
             os.system("sox "+audio_file+" -t wav -r 16000 -b 16 -e signed-integer -c 1 "+seg_audio_file+" trim "+duration)       
     index += 1
 
-
+os.remove(current_audio_file)
