@@ -23,10 +23,8 @@ for metadata_filename in fileinput.input(metadata_list_filename):
     metadata_file.close()
 
 links.sort()
-
-current_video_file = ""
+current_audio_file = ""
 index = 0
-
 for line in links:
     video_link = line[0]
     duration = line[1]
@@ -36,16 +34,19 @@ for line in links:
     if index == 0:
         os.system("wget "+video_link)
         os.system("avconv -i "+video_file+" -vn -f wav -ar 16000 -ac 1 "+audio_file)
+        os.remove(video_file)
         seg_audio_file = trn_filename.replace(".trn",".wav")
         os.system("sox "+audio_file+" -t wav -r 16000 -b 16 -e signed-integer -c 1 "+seg_audio_file+" trim "+duration)
-        current_video_file = video_file
+        current_audio_file = audio_file
     else:
-        if current_video_file != video_file:
-            os.remove(video_file)
+        if current_audio_file != audio_file:
             os.system("wget "+video_link)
+            os.system("avconv -i "+video_file+" -vn -f wav -ar 16000 -ac 1 "+audio_file)
+            os.remove(video_file)
             seg_audio_file = trn_filename.replace(".trn",".wav")
             os.system("sox "+audio_file+" -t wav -r 16000 -b 16 -e signed-integer -c 1 "+seg_audio_file+" trim "+duration)
-            current_video_file = video_file 
+            os.remove(current_audio_file)
+            current_audio_file = audio_file 
         else:
             seg_audio_file = trn_filename.replace(".trn",".wav")
             os.system("sox "+audio_file+" -t wav -r 16000 -b 16 -e signed-integer -c 1 "+seg_audio_file+" trim "+duration)       
