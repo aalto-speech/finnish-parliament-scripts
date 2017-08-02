@@ -1,4 +1,4 @@
-<ANNOTATION_DOCUMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" AUTHOR="" DATE="2017-03-15T14:10:48.812875+2:00" FORMAT="2.7" VERSION="2.7" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv2.7.xsd">
+<ANNOTATION_DOCUMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" AUTHOR="" DATE="2017-08-02T14:47:36.782320+3:00" FORMAT="2.7" VERSION="2.7" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv2.7.xsd">
   <HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
     <MEDIA_DESCRIPTOR MEDIA_URL="https://down0-80133-down0.dna.qbrick.com/80133-down0/Syysistuntokausi_2008/79._tiistaina_23._syyskuuta_2008.mp4" MIME_TYPE="video/mp4" RELATIVE_MEDIA_URL=""/>
     <PROPERTY NAME="lastUsedAnnotationId">5478</PROPERTY>
@@ -37911,7 +37911,7 @@
     </ANNOTATION>
     <ANNOTATION>
       <ALIGNABLE_ANNOTATION ANNOTATION_ID="a5374" TIME_SLOT_REF1="ts10747" TIME_SLOT_REF2="ts10748">
-        <ANNOTATION_VALUE>seitsemän</ANNOTATION_VALUE>
+        <ANNOTATION_VALUE>seitsemässä</ANNOTATION_VALUE>
       </ALIGNABLE_ANNOTATION>
     </ANNOTATION>
     <ANNOTATION>

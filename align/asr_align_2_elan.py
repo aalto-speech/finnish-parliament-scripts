@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import argparse
 import sys
@@ -51,12 +51,8 @@ def parse_asr(rfile):
         else:
             gap = int(start)-int(prev_end)
             if gap <= GAP_THRESHOLD:
-                #print "small gap "+str(gap)
                 new_alignment = prev_end+"\t"+end+"\t"+token+"\t"+alignment_type+"\t"+speaker_id
                 r2.append(new_alignment)        
-                #if gap < 0:
-                #    print prev_token+" "+token
-        
                 prev_start = start
                 prev_end = end
                 prev_speaker_id = speaker_id
@@ -215,15 +211,11 @@ def align_hyp_ref(reference_snts,hypothesis_snts):
        #Check if hyp and ref are equal length
        if len(hypothesis_words) > len(reference_words):
            sys.stderr.write("More hyp words than refs\n")
-           sys.stderr.write(reference_snt+"\n")
-           sys.stderr.write(hypothesis_snt+"\n")
            len_diff = len(hypothesis_words) - len(reference_words)
            for i in range(len_diff):
                reference_words.append("*")
        elif len(hypothesis_words) < len(reference_words):
            sys.stderr.write("More ref words than hyps\n")
-           sys.stderr.write(reference_snt+"\n")
-           sys.stderr.write(hypothesis_snt+"\n")
            len_diff = len(reference_words) - len(hypothesis_words)
            for i in range(len_diff):
                hypothesis_words.append("*")
@@ -235,20 +227,6 @@ def align_hyp_ref(reference_snts,hypothesis_snts):
                #Empty insert list first
                if len(asr_inserts) > INSERT_LIMIT:
                    #Segment ASR insert with punctuations
-                   '''
-                   #Beginning 
-                   if alignment_index != 0:
-                       latest_start,latest_end,latest_align_word,rec_type = alignments[alignment_index-1].split("\t")
-                       first_asr_start,first_asr_end,first_asr_word = asr_inserts[0].split("\t")
-                       if latest_align_word != "." and first_asr_word != ".":
-                           asr_begin_insert = latest_end+"\t"+latest_end+"\t"+"."
-                           asr_inserts.insert(0,asr_begin_insert)
-                   #End               
-                   last_asr_start,last_asr_end,last_asr_word = asr_inserts[len(asr_inserts)-1].split("\t")                               
-                   if reference_word != "." and last_asr_word != ".":
-                       asr_end_insert = last_asr_start+"\t"+last_asr_start+"\t"+"."
-                       asr_inserts.append(asr_end_insert)
-                   '''
                    for asr_insert in asr_inserts:
                        start,end,hypothesis_time_word = asr_insert.split("\t")
                        alignments.append(start.strip()+"\t"+end.strip()+"\t"+hypothesis_time_word+"\tASR")
@@ -261,10 +239,6 @@ def align_hyp_ref(reference_snts,hypothesis_snts):
                start,end,hypothesis_time_word = hyp_time_words[hypothesis_word_index].split("\t")
                original_reference_word = original_ref_words[reference_word_index]
                if convert_to_lower(hypothesis_time_word) != convert_to_lower(hypothesis_word):
-                   #pass
-                   print("reference_word: "+reference_word+"\n")
-                   print("hypothesis_word: "+hypothesis_word+"\n")
-                   print("hypothesis_time_word: "+hypothesis_time_word+"\n")
                    alignments.append(start.strip()+"\t"+end.strip()+"\t"+original_reference_word+"\tREF")
                    alignment_index += 1
                    hypothesis_word_index += 1
@@ -284,21 +258,6 @@ def align_hyp_ref(reference_snts,hypothesis_snts):
                #Empty insert list first
                if len(asr_inserts) > INSERT_LIMIT:
                    #Segment ASR insert with punctuations
-                   '''
-                   #Beginning
-                   if alignment_index != 0: 
-                       latest_start,latest_end,latest_align_word,rec_type = alignments[alignment_index-1].split("\t")
-                       first_asr_start,first_asr_end,first_asr_word = asr_inserts[0].split("\t")
-                       if latest_align_word != "." and first_asr_word != ".":
-                           asr_begin_insert = latest_end+"\t"+latest_end+"\t"+"."
-                           asr_inserts.insert(0,asr_begin_insert)
-                   #End               
-                   last_asr_start,last_asr_end,last_asr_word = asr_inserts[len(asr_inserts)-1].split("\t")                               
-                   if reference_word != "." and last_asr_word != ".":
-                       asr_end_insert = last_asr_start+"\t"+last_asr_start+"\t"+"."
-                       asr_inserts.append(asr_end_insert)
-                   '''
-                   
                    for asr_insert in asr_inserts:
                        start,end,hypothesis_time_word = asr_insert.split("\t")
                        alignments.append(start.strip()+"\t"+end.strip()+"\t"+hypothesis_time_word+"\tASR")
@@ -319,8 +278,6 @@ def align_hyp_ref(reference_snts,hypothesis_snts):
                reference_word_index += 1
            word_index += 1
        index += 1
-    sys.stderr.write("index: "+str(index)+"\n")
-    sys.stderr.write("hypothesis_word_index: "+str(hypothesis_word_index)+"\n")
     return alignments,hypothesis_word_index 
 
 
@@ -412,35 +369,14 @@ def split_and_realign(ref_filename,hyp_filename):
                ref_temp_snt_words.append(r)
 
        if len(hyp_temp_snt_words) > len(ref_temp_snt_words):
-           print(ref_temp_snt_words)
-           print(hyp_temp_snt_words)
            len_diff = len(hyp_temp_snt_words) - len(ref_temp_snt_words)
            for i in range(len_diff):
                ref_snt_words.append("*")
        elif len(hyp_temp_snt_words) < len(ref_temp_snt_words):
-           print(ref_temp_snt_words)
-           print(hyp_temp_snt_words)
            len_diff = len(ref_temp_snt_words) - len(hyp_temp_snt_words)
            for i in range(len_diff):
                hyp_snt_words.append("*")
        index += 1
-
-    #Check if hyp and ref are equal length
-    #if len(hyp_snt_words) > len(ref_snt_words):
-    #    sys.stderr.write("More hyp words than refs\n")
-    #    sys.stderr.write(ref_snt+"\n")
-    #    sys.stderr.write(hyp_snt+"\n")
-    #    len_diff = len(hyp_snt_words) - len(ref_snt_words)
-    #    for i in range(len_diff):
-    #        ref_snt_words.append("*")
-    #elif len(hyp_snt_words) < len(ref_snt_words):
-    #    sys.stderr.write("More ref words than hyps\n")
-    #    sys.stderr.write(ref_snt+"\n")
-    #    sys.stderr.write(hyp_snt+"\n")
-    #    len_diff = len(ref_snt_words) - len(hyp_snt_words)
-    #    for i in range(len_diff):
-    #        hyp_snt_words.append("*")
-    
 
     word_index = 0
     correct_sequence_count = 0
@@ -553,9 +489,6 @@ def split_and_realign(ref_filename,hyp_filename):
         ref_snts_2,hyp_snts_2 = split_and_realign(ref_snt_2_filename,hyp_snt_2_filename)
         ref_snts = ref_snts_1+ref_snts_2
         hyp_snts = hyp_snts_1+hyp_snts_2
-    else:
-        sys.stderr.write("len(ref_snts): "+str(len(ref_snts))+"\n")
-        sys.stderr.write("len(hyp_snts): "+str(len(hyp_snts))+"\n")
     
     #Remove alignment files
     
@@ -781,7 +714,7 @@ temp_transcript_sclite_file.close()
 #Assume sctk module is loaded
 session_analysis_filename = temp_asr_sclite_filename+".snt.session"
 try:
-    os.system("sclite -r "+temp_transcript_sclite_filename+" -h "+temp_asr_sclite_filename+" -i rm -o pra > "+session_analysis_filename)
+    os.system("sclite -r "+temp_transcript_sclite_filename+" -h "+temp_asr_sclite_filename+" -i rm -o pra stdout > "+session_analysis_filename)
 except:
     sys.stderr.write("First alignment unsuccessful\n")
 
@@ -823,20 +756,6 @@ asr_millisecond_alignments = parse_asr(asr_speaker_alignments)
 #Write to ELAN format
 write_elan(media_url,asr_millisecond_alignments,elan_file)
 
-#Write to quality check files, SPLIT or NORMAL
-'''
-split_filename = "/home/ammansik/puhe/c/eduskunta/split_files.list"
-intact_filename = "/home/ammansik/puhe/c/eduskunta/intact_files.list"
-if SPLIT_FLAG:
-    split_file = open(split_filename,"a")
-    split_file.write(elan_file.strip()+"\n")
-    split_file.close()
-else:
-    intact_file = open(intact_filename,"a")
-    intact_file.write(elan_file.strip()+"\n")
-    intact_file.close()
-
-'''
 #Remove temp files
 os.system("rm "+session_analysis_filename)
 os.system("rm "+temp_transcript_sclite_filename)
