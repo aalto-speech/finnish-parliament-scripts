@@ -56,6 +56,6 @@ Extract individual speech segments from a list of metadata files:
 extract/corpus_extractor.py metadata-file-list 
 ```
 
-Stores both audio file (.wav) and transcript (.trn)
+Stores audio file (.wav)
 
 André Mansikkaniemi, andre.mansikkaniemi@aalto.fi
