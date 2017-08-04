@@ -10,7 +10,9 @@ from lxml import html
 import urllib
 from urllib.request import urlopen
 from urllib.request import urlretrieve
+from selenium import webdriver
 
+driver = webdriver.Firefox()
 
 target_dir_base = sys.argv[1].strip()
 
@@ -57,21 +59,21 @@ for session in parliament_sessions:
     if dt.year >= 2015:
         if dt.year == 2015 and int(transcript_id) >= 135:
             transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year-1)    
-            transcript_page = requests.get(transcript_url)
-            transcript_tree = html.fromstring(transcript_page.text)
         else:
             transcript_url = "https://www.eduskunta.fi/FI/vaski/poytakirja/Sivut/PTK_"+transcript_id+"+"+str(dt.year)+".aspx"
-            transcript_page = requests.get(transcript_url)
-            transcript_tree = html.fromstring(transcript_page.text)
+        transcript_page = requests.get(transcript_url)
+        transcript_tree = html.fromstring(transcript_page.text)
+    #Retrieving earlier than 2015 transcripts has to be done with Selenium at the moment, because of a Javascript survey popping up 
     else:
         if (dt.year in election_years) and (dt.month >= 1 and dt.month <=5) and (int(transcript_id) > 100):
             transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year-1)+"#"
-            transcript_page = requests.get(transcript_url)
-            transcript_tree = html.fromstring(transcript_page.text)
         else: 
             transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year)+"#"
-            transcript_page = requests.get(transcript_url)
-            transcript_tree = html.fromstring(transcript_page.text)
+        driver.get(transcript_url)
+        transcript_page = driver.page_source
+        print(transcript_page)
+        print("Transcript Page")
+        transcript_tree = html.fromstring(transcript_page)
     if transcript_url.endswith(".aspx"):
         transcript_sections = transcript_tree.xpath('//div[@class]')
         pmpvuoro_index = 0
