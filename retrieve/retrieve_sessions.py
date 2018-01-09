@@ -217,8 +217,8 @@ doc = etree.parse(fp)
 fp.close()
 
 #Specify which sessions to retrieve
-#target_sessions = [u'Syysistuntokausi 2008',u'Kevätistuntokausi 2009',u'Syysistuntokausi 2009',u'Kevätistuntokausi 2010',u'Syysistuntokausi 2010',u'Kevätistuntokausi 2011',u'Syysistuntokausi 2011',u'Kevätistuntokausi 2012',u'Syysistuntokausi 2012',u'Kevätistuntokausi 2013',u'Syysistuntokausi 2013',u'Kevätistuntokausi 2014',u'Syysistuntokausi 2014',u'Kevätistuntokausi 2015',u'Syysistuntokausi 2015',u'Kevätistuntokausi 2016',u'Syysistuntokausi 2016']
-target_sessions = [u'Kevätistuntokausi 2009']
+target_sessions = [u'Syysistuntokausi 2008',u'Kevätistuntokausi 2009',u'Syysistuntokausi 2009',u'Kevätistuntokausi 2010',u'Syysistuntokausi 2010',u'Kevätistuntokausi 2011',u'Syysistuntokausi 2011',u'Kevätistuntokausi 2012',u'Syysistuntokausi 2012',u'Kevätistuntokausi 2013',u'Syysistuntokausi 2013',u'Kevätistuntokausi 2014',u'Syysistuntokausi 2014',u'Kevätistuntokausi 2015',u'Syysistuntokausi 2015',u'Kevätistuntokausi 2016',u'Syysistuntokausi 2016']
+#target_sessions = [u'Kevätistuntokausi 2009']
 
 parliament_sessions = get_parliament_sessions(target_sessions)
 for session in parliament_sessions:
