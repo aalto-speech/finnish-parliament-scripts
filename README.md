@@ -23,6 +23,8 @@ Four different files will be saved for each session:
 - *.transcript - meeting transcript with speaker information for each paragraph
 - *.metadata - metadata file containing date information and links to the original video and meeting transcript
 
+EDIT: Currently the retrieval of the meeting transcripts fails because the publishing format has changed. 
+
 Produce first-pass recognition output with an ASR system (preferably train a biased LM with the meeting transcripts).
 -------------------------
 Store recognition output in the following format:

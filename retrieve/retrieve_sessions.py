@@ -9,8 +9,8 @@ from lxml import html
 import urllib
 from urllib.request import urlopen
 from urllib.request import urlretrieve
-from selenium import webdriver
-from selenium.common.exceptions import NoAlertPresentException
+#from selenium import webdriver
+#from selenium.common.exceptions import NoAlertPresentException
 from urllib.parse import quote
 
 def get_parliament_sessions(target_sessions):
@@ -22,8 +22,9 @@ def get_parliament_sessions(target_sessions):
     parliament_sessions = []
     for d in doc.xpath('//media//item'):
         target_flag= False
-        video_title = d.xpath('./title//text()')[0]
-        video_date  = d.xpath('./publishdate//text()')[0]
+        
+        video_title = d.xpath('./title//text()')[0] if len(d.xpath('./title//text()')) > 0 else 'no title' 
+        video_date  = d.xpath('./publishdate//text()')[0] if len(d.xpath('./publishdate//text()')) > 0 else 'no date'
         for cat in d.xpath('./categories//category'):
             if cat.text in target_session_ids:
                 target_flag = True
@@ -54,16 +55,22 @@ def get_meeting_transcript(session):
             transcript_url = "https://www.eduskunta.fi/FI/vaski/poytakirja/Sivut/PTK_"+transcript_id+"+"+str(dt.year)+".aspx"
         transcript_page = requests.get(transcript_url)
         transcript_tree = html.fromstring(transcript_page.text)
-    #Retrieving transcripts earlier than 2015 has to be done with Selenium at the moment, because of a Javascript survey popping up 
+
     else:
         if (dt.year in election_years) and (dt.month >= 1 and dt.month <=5) and (int(transcript_id) > 100):
             transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year-1)
         else: 
             transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year)
+        transcript_page = requests.get(transcript_url)
+        transcript_tree = html.fromstring(transcript_page.text)
+        #Retrieving transcripts earlier than 2015 had to be done with Selenium, because of a Javascript survey popping up 
+        #Last check, 9.1.2018, problem did not exist anymore. 
+        '''
         driver.get(transcript_url)
         driver.refresh()
         transcript_page = driver.page_source
         transcript_tree = html.fromstring(transcript_page)
+        '''
     if transcript_url.endswith(".aspx"):
         transcript_sections = transcript_tree.xpath('//div[@class]')
         pmpvuoro_index = 0
@@ -206,10 +213,15 @@ def get_meeting_transcript(session):
  
 
 #Initialize Selenium Web driver
-driver = webdriver.Firefox()
+'''
+Originally needed to circumvent automatic questionnaire 
+pages that popped open when accessing parliament meeting transcripts.
+The latest I checked, 9.1.2018, they weren't there anymore.
+'''
+#driver = webdriver.Firefox()
+##################################################################
 
 target_dir_base = sys.argv[1].strip()
-
 #Download Channels URL
 url = "http://vms.api.qbrick.com/rest/v3/GetAllMedia/24B02715?pageIndex=0&pageSize=2000&profile=android"
 fp = urlopen(url)
@@ -217,8 +229,8 @@ doc = etree.parse(fp)
 fp.close()
 
 #Specify which sessions to retrieve
-target_sessions = [u'Syysistuntokausi 2008',u'Kevätistuntokausi 2009',u'Syysistuntokausi 2009',u'Kevätistuntokausi 2010',u'Syysistuntokausi 2010',u'Kevätistuntokausi 2011',u'Syysistuntokausi 2011',u'Kevätistuntokausi 2012',u'Syysistuntokausi 2012',u'Kevätistuntokausi 2013',u'Syysistuntokausi 2013',u'Kevätistuntokausi 2014',u'Syysistuntokausi 2014',u'Kevätistuntokausi 2015',u'Syysistuntokausi 2015',u'Kevätistuntokausi 2016',u'Syysistuntokausi 2016']
-#target_sessions = [u'Kevätistuntokausi 2009']
+#target_sessions = [u'Syysistuntokausi 2008',u'Kevätistuntokausi 2009',u'Syysistuntokausi 2009',u'Kevätistuntokausi 2010',u'Syysistuntokausi 2010',u'Kevätistuntokausi 2011',u'Syysistuntokausi 2011',u'Kevätistuntokausi 2012',u'Syysistuntokausi 2012',u'Kevätistuntokausi 2013',u'Syysistuntokausi 2013',u'Kevätistuntokausi 2014',u'Syysistuntokausi 2014',u'Kevätistuntokausi 2015',u'Syysistuntokausi 2015',u'Kevätistuntokausi 2016',u'Syysistuntokausi 2016']
+target_sessions = [u'Kevätistuntokausi 2009']
 
 parliament_sessions = get_parliament_sessions(target_sessions)
 for session in parliament_sessions:
