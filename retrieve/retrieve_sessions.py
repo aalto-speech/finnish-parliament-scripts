@@ -47,168 +47,174 @@ def get_meeting_transcript(session):
     session_url = session[2]
     dt = parser.parse(session_date)
     #Retrieve corresponding meeting transcript
-    transcript_id,rest = session_title.split(". ",1)
-    if dt.year >= 2015:
-        if dt.year == 2015 and int(transcript_id) >= 135:
-            transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year-1)    
-        else:
-            transcript_url = "https://www.eduskunta.fi/FI/vaski/poytakirja/Sivut/PTK_"+transcript_id+"+"+str(dt.year)+".aspx"
-        transcript_page = requests.get(transcript_url)
-        transcript_tree = html.fromstring(transcript_page.text)
-
-    else:
-        if (dt.year in election_years) and (dt.month >= 1 and dt.month <=5) and (int(transcript_id) > 100):
-            transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year-1)
-        else: 
-            transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year)
-        transcript_page = requests.get(transcript_url)
-        transcript_tree = html.fromstring(transcript_page.text)
-        #Retrieving transcripts earlier than 2015 had to be done with Selenium, because of a Javascript survey popping up 
-        #Last check, 9.1.2018, problem did not exist anymore. 
-        '''
-        driver.get(transcript_url)
-        driver.refresh()
-        transcript_page = driver.page_source
-        transcript_tree = html.fromstring(transcript_page)
-        '''
-    if transcript_url.endswith(".aspx"):
-        transcript_sections = transcript_tree.xpath('//div[@class]')
-        pmpvuoro_index = 0
-        for ts in transcript_sections:
-            if 'class' in ts.attrib:
-                if ts.attrib['class'] == "AsiaKohtaLinkki":
-                    transcript_output += "ASIAKOHTA\n"
-                    for a in ts:
-                        if a.tag == "a":
-                            meeting_url = "https://www.eduskunta.fi"+a.attrib['href']
-                            meeting_page = requests.get(meeting_url)
-                            meeting_tree = html.fromstring(meeting_page.text)
-                            talks = meeting_tree.xpath('//div[@class]')
-                            index = 0
-                            for p in talks:
-                                try:
-                                    prev_p = talks[index-1]
-                                except:
-                                    prev_p = p
-                                try:
-                                    next_p = talks[index+1]
-                                except:
-                                    next_p = p
-                                
-                                if 'class' in p.attrib:
-                                    if p.attrib['class'] == "Henkilo":
-                                        sub_elements = p.xpath('*/div[@class]')
-                                        speaker_info = "" 
-                                        for element in sub_elements:
-                                            if element.attrib['class'] == "LisatietoTeksti":
-                                                speaker_info += "("+element.text_content()+") "                                                
-                                            else:
-                                                speaker_info += element.text_content()+" "
-                                        speaker_info = speaker_info.strip()
-                                        if len(speaker_info) > 0:
-                                            speaker_info = "SPEAKER: "+speaker_info
-                                            transcript_output += speaker_info+"\n"
-                                    elif p.attrib['class'] == "PuheenjohtajaTeksti":
-                                        chairman_name = p.text_content()
-                                        transcript_output += "SPEAKER: "+chairman_name+"\n" 
-                                    elif p.attrib['class'] == "KappaleKooste":
-                                        text_prompt = p.text_content()
-                                        transcript_output += text_prompt+"\n"
-                                index += 1                                                
-    else:
-        transcript_sections = transcript_tree.xpath('//div[@class]')
-        pmpvuoro_index = 0
+    try:
+        transcript_id,rest = session_title.split(". ",1)
+    except:
+        transcript_id = ""
+        transcript_url = ""
         transcript_output = ""
-        for ts in transcript_sections:
-            if 'class' in ts.attrib:
-                if ts.attrib['class'] == "PMPVUORO":
-                    transcript_output += "PMPVUORO\n"
-                    talk =  ts.text_content()
-                    for p in ts:
-                        if p.tag == "p":
-                            if 'class' in p.attrib:
-                                if p.attrib['class'] == "inline strong":
-                                    speaker = p.text_content()
-                                    speaker = speaker.replace("\n"," ")
-                                    speaker = speaker.strip()
-                                    transcript_output += "SPEAKER: "+speaker+"\n"
-                    talk_lines = talk.split("\n")
-                    for talk_line in talk_lines:
-                        if talk_line.strip() != speaker.strip():
-                            talk_line = talk_line.strip()
-                            transcript_output += talk_line+"\n"
-                elif ts.attrib['class'] == "EDPVUORO":
-                    transcript_output += "EDPVUORO\n"
-                    talk =  ts.text_content()
-                    for p in ts:
-                        if p.tag == "p":
-                            if 'class' in p.attrib:
-                                if p.attrib['class'] == "strong inline":
-                                    speaker = p.text_content()
-                                    speaker = speaker.replace("\n"," ")
-                                    speaker = speaker.strip()
-                                    transcript_output += "SPEAKER: "+speaker+"\n"
-                    talk_lines = talk.split("\n")
-                    for talk_line in talk_lines:
-                        if talk_line.strip() != speaker.strip():
-                            talk_line = talk_line.strip()
-                            transcript_output += talk_line+"\n"
-                elif ts.attrib['class'] == "KESKUST":
-                    transcript_output += "KESKUST\n"
-                    for p in ts:
-                        if p.tag == "p":
-                            for a in p:
-                                if a.tag == "a" and 'class' in a.attrib: 
-                                    if a.attrib['class'] == "OTSIS":
-                                        meeting_url = "https://www.eduskunta.fi"+a.attrib['href']
-                                        meeting_page = requests.get(meeting_url)
-                                        meeting_tree = html.fromstring(meeting_page.text)
-                                        talks = meeting_tree.xpath('//div[@class="PVUORO"]//p')
-                                        for p in talks:
-                                            if p.tag == "p":
-                                                if 'class' in p.attrib:
-                                                    if 'inline' in p.attrib['class']:
-                                                        speaker = p.text_content()
-                                                        speaker = speaker.replace("\n"," ")
-                                                        speaker = speaker.strip()
-                                                        transcript_output += "SPEAKER: "+speaker+"\n"                           
-                                                elif 'xmlns:edk' in p.attrib:
-                                                    talk = p.text_content()
-                                                    talk_lines = talk.split("\n")
-                                                    for talk_line in talk_lines:
-                                                        talk_line = talk_line.strip() 
-                                                        transcript_output += talk_line+"\n"                                 
-                elif ts.attrib['class'] == "KYSKESK":
-                    modified_flag = True
-                    transcript_output += "KYSKESK\n"
-                    for a in ts:
-                        if a.tag == "a" and 'class' in a.attrib:
-                            if a.attrib['class'] == "KYSYM":
+    if transcript_id != "":
+        if dt.year >= 2015:
+            if dt.year == 2015 and int(transcript_id) >= 135:
+                transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year-1)    
+            else:
+                transcript_url = "https://www.eduskunta.fi/FI/vaski/poytakirja/Sivut/PTK_"+transcript_id+"+"+str(dt.year)+".aspx"
+            transcript_page = requests.get(transcript_url)
+            transcript_tree = html.fromstring(transcript_page.text)
+    
+        else:
+            if (dt.year in election_years) and (dt.month >= 1 and dt.month <=5) and (int(transcript_id) > 100):
+                transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year-1)
+            else: 
+                transcript_url = "https://www.eduskunta.fi/FI/Vaski/sivut/trip.aspx?triptype=ValtiopaivaAsiakirjat&docid=ptk+"+transcript_id+"/"+str(dt.year)
+            transcript_page = requests.get(transcript_url)
+            transcript_tree = html.fromstring(transcript_page.text)
+            #Retrieving transcripts earlier than 2015 had to be done with Selenium, because of a Javascript survey popping up 
+            #Last check, 9.1.2018, problem did not exist anymore. 
+            '''
+            driver.get(transcript_url)
+            driver.refresh()
+            transcript_page = driver.page_source
+            transcript_tree = html.fromstring(transcript_page)
+            '''
+        if transcript_url.endswith(".aspx"):
+            transcript_sections = transcript_tree.xpath('//div[@class]')
+            pmpvuoro_index = 0
+            for ts in transcript_sections:
+                if 'class' in ts.attrib:
+                    if ts.attrib['class'] == "AsiaKohtaLinkki":
+                        transcript_output += "ASIAKOHTA\n"
+                        for a in ts:
+                            if a.tag == "a":
                                 meeting_url = "https://www.eduskunta.fi"+a.attrib['href']
                                 meeting_page = requests.get(meeting_url)
                                 meeting_tree = html.fromstring(meeting_page.text)
-                                talks = meeting_tree.xpath('//div[@class="SKTPVUOR"]//*')
+                                talks = meeting_tree.xpath('//div[@class]')
+                                index = 0
                                 for p in talks:
-                                    if p.tag == "p":
-                                        if 'class' in p.attrib:
-                                             if 'inline' in p.attrib['class']:
-                                                 speaker = p.text_content()
-                                                 speaker = speaker.replace("\n"," ")
-                                                 speaker = speaker.strip()
-                                                 transcript_output += "SPEAKER: "+speaker+"\n"                           
-                                        elif 'xmlns:edk' in p.attrib:
-                                             talk = p.text_content()
-                                             talk_lines = talk.split("\n")
-                                             for talk_line in talk_lines:
-                                                 talk_line = talk_line.strip() 
-                                                 transcript_output += talk_line+"\n"
-                                    elif p.tag == "span":
-                                        if 'class' in p.attrib:
-                                            if 'inline' in p.attrib['class']:
-                                                 speaker = p.text_content()
-                                                 speaker = speaker.replace("\n"," ")
-                                                 speaker = speaker.strip()
-                                                 transcript_output += "SPEAKER: "+speaker+"\n"
+                                    try:
+                                        prev_p = talks[index-1]
+                                    except:
+                                        prev_p = p
+                                    try:
+                                        next_p = talks[index+1]
+                                    except:
+                                        next_p = p
+                                    
+                                    if 'class' in p.attrib:
+                                        if p.attrib['class'] == "Henkilo":
+                                            sub_elements = p.xpath('*/div[@class]')
+                                            speaker_info = "" 
+                                            for element in sub_elements:
+                                                if element.attrib['class'] == "LisatietoTeksti":
+                                                    speaker_info += "("+element.text_content()+") "                                                
+                                                else:
+                                                    speaker_info += element.text_content()+" "
+                                            speaker_info = speaker_info.strip()
+                                            if len(speaker_info) > 0:
+                                                speaker_info = "SPEAKER: "+speaker_info
+                                                transcript_output += speaker_info+"\n"
+                                        elif p.attrib['class'] == "PuheenjohtajaTeksti":
+                                            chairman_name = p.text_content()
+                                            transcript_output += "SPEAKER: "+chairman_name+"\n" 
+                                        elif p.attrib['class'] == "KappaleKooste":
+                                            text_prompt = p.text_content()
+                                            transcript_output += text_prompt+"\n"
+                                    index += 1                                                
+        else:
+            transcript_sections = transcript_tree.xpath('//div[@class]')
+            pmpvuoro_index = 0
+            transcript_output = ""
+            for ts in transcript_sections:
+                if 'class' in ts.attrib:
+                    if ts.attrib['class'] == "PMPVUORO":
+                        transcript_output += "PMPVUORO\n"
+                        talk =  ts.text_content()
+                        for p in ts:
+                            if p.tag == "p":
+                                if 'class' in p.attrib:
+                                    if p.attrib['class'] == "inline strong":
+                                        speaker = p.text_content()
+                                        speaker = speaker.replace("\n"," ")
+                                        speaker = speaker.strip()
+                                        transcript_output += "SPEAKER: "+speaker+"\n"
+                        talk_lines = talk.split("\n")
+                        for talk_line in talk_lines:
+                            if talk_line.strip() != speaker.strip():
+                                talk_line = talk_line.strip()
+                                transcript_output += talk_line+"\n"
+                    elif ts.attrib['class'] == "EDPVUORO":
+                        transcript_output += "EDPVUORO\n"
+                        talk =  ts.text_content()
+                        for p in ts:
+                            if p.tag == "p":
+                                if 'class' in p.attrib:
+                                    if p.attrib['class'] == "strong inline":
+                                        speaker = p.text_content()
+                                        speaker = speaker.replace("\n"," ")
+                                        speaker = speaker.strip()
+                                        transcript_output += "SPEAKER: "+speaker+"\n"
+                        talk_lines = talk.split("\n")
+                        for talk_line in talk_lines:
+                            if talk_line.strip() != speaker.strip():
+                                talk_line = talk_line.strip()
+                                transcript_output += talk_line+"\n"
+                    elif ts.attrib['class'] == "KESKUST":
+                        transcript_output += "KESKUST\n"
+                        for p in ts:
+                            if p.tag == "p":
+                                for a in p:
+                                    if a.tag == "a" and 'class' in a.attrib: 
+                                        if a.attrib['class'] == "OTSIS":
+                                            meeting_url = "https://www.eduskunta.fi"+a.attrib['href']
+                                            meeting_page = requests.get(meeting_url)
+                                            meeting_tree = html.fromstring(meeting_page.text)
+                                            talks = meeting_tree.xpath('//div[@class="PVUORO"]//p')
+                                            for p in talks:
+                                                if p.tag == "p":
+                                                    if 'class' in p.attrib:
+                                                        if 'inline' in p.attrib['class']:
+                                                            speaker = p.text_content()
+                                                            speaker = speaker.replace("\n"," ")
+                                                            speaker = speaker.strip()
+                                                            transcript_output += "SPEAKER: "+speaker+"\n"                           
+                                                    elif 'xmlns:edk' in p.attrib:
+                                                        talk = p.text_content()
+                                                        talk_lines = talk.split("\n")
+                                                        for talk_line in talk_lines:
+                                                            talk_line = talk_line.strip() 
+                                                            transcript_output += talk_line+"\n"                                 
+                    elif ts.attrib['class'] == "KYSKESK":
+                        modified_flag = True
+                        transcript_output += "KYSKESK\n"
+                        for a in ts:
+                            if a.tag == "a" and 'class' in a.attrib:
+                                if a.attrib['class'] == "KYSYM":
+                                    meeting_url = "https://www.eduskunta.fi"+a.attrib['href']
+                                    meeting_page = requests.get(meeting_url)
+                                    meeting_tree = html.fromstring(meeting_page.text)
+                                    talks = meeting_tree.xpath('//div[@class="SKTPVUOR"]//*')
+                                    for p in talks:
+                                        if p.tag == "p":
+                                            if 'class' in p.attrib:
+                                                 if 'inline' in p.attrib['class']:
+                                                     speaker = p.text_content()
+                                                     speaker = speaker.replace("\n"," ")
+                                                     speaker = speaker.strip()
+                                                     transcript_output += "SPEAKER: "+speaker+"\n"                           
+                                            elif 'xmlns:edk' in p.attrib:
+                                                 talk = p.text_content()
+                                                 talk_lines = talk.split("\n")
+                                                 for talk_line in talk_lines:
+                                                     talk_line = talk_line.strip() 
+                                                     transcript_output += talk_line+"\n"
+                                        elif p.tag == "span":
+                                            if 'class' in p.attrib:
+                                                if 'inline' in p.attrib['class']:
+                                                     speaker = p.text_content()
+                                                     speaker = speaker.replace("\n"," ")
+                                                     speaker = speaker.strip()
+                                                     transcript_output += "SPEAKER: "+speaker+"\n"
     return transcript_id,transcript_url,transcript_output
  
 
